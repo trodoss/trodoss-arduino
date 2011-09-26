@@ -3,5 +3,6 @@
 #include "room.h"
 
 RoomElement moveMonster(RoomElement element);
+RoomElement hitMonster(RoomElement element);
 
 #endif __MONSTER__

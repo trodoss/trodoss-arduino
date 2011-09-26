@@ -4,6 +4,8 @@
 #include "elf_bitmap.h"
 #include "map_bitmap.h"
 #include "map.h"
+#include "room.h"
+#include "item.h"
 extern TVout TV;
 
 #define FACING_DOWN  0
@@ -14,14 +16,6 @@ extern TVout TV;
 #define STEP_LENGTH  4
 
 #define SIZEOF_ELF_RECORD 10
-
-struct Elf
-{
-  unsigned char facing;
-  unsigned char step;
-  unsigned char x;
-  unsigned char y;
-};
 
 Elf elf = {FACING_DOWN, 1, 36, 24};
 
@@ -52,7 +46,8 @@ void moveElf(unsigned char facing)
      case FACING_DOWN:
 	   if (elf.y < 48)
            {
-             if (checkMapRoomMove(elf.x, elf.y + 16) == 0) elf.y += STEP_LENGTH;
+             if (checkMapRoomMove(elf.x, elf.y + 16) == 0) 
+	        if (checkMapRoomMove(elf.x+4, elf.y + 16) == 0) elf.y += STEP_LENGTH;
            } else {
 	     scrollMap(SCROLL_DOWN);
     	     elf.x = 36;
@@ -64,7 +59,8 @@ void moveElf(unsigned char facing)
 	case FACING_UP:
            if (elf.y > 4)
            {
-             if (checkMapRoomMove(elf.x, elf.y - 4) == 0) elf.y -= STEP_LENGTH;
+             if (checkMapRoomMove(elf.x, elf.y - 4) == 0)
+	        if (checkMapRoomMove(elf.x + 4, elf.y - 4) == 0) elf.y -= STEP_LENGTH;
            } else {
 	     scrollMap(SCROLL_UP);
 	     elf.x = 36;
@@ -77,7 +73,7 @@ void moveElf(unsigned char facing)
 	   if (elf.x > 4)
            {
              if (checkMapRoomMove(elf.x - 4, elf.y) == 0)
-                if (checkMapRoomMove(elf.x - 4, elf.y + 8) == 0) elf.x -= STEP_LENGTH;
+                if (checkMapRoomMove(elf.x - 4, elf.y + 12) == 0) elf.x -= STEP_LENGTH;
            } else {
 	       scrollMap(SCROLL_LEFT);
 	       elf.x = 64;
@@ -90,7 +86,7 @@ void moveElf(unsigned char facing)
            if (elf.x < 80)
            {
              if (checkMapRoomMove(elf.x + 12, elf.y) == 0)
-               if (checkMapRoomMove(elf.x + 12, elf.y + 8) == 0) elf.x += STEP_LENGTH;	
+               if (checkMapRoomMove(elf.x + 12, elf.y + 12) == 0) elf.x += STEP_LENGTH;	
            } else {
 	       scrollMap(SCROLL_RIGHT);
 	       elf.x = 16;
@@ -104,6 +100,53 @@ void moveElf(unsigned char facing)
   TV.bitmap(elf.x, elf.y, elf_bitmap + ( elf.facing * SIZEOF_ELF_RECORD));
   TV.bitmap(elf.x, elf.y+8, elf_bitmap + ((elf.facing + elf.step) * SIZEOF_ELF_RECORD)); 
 }
+
+void throwSword()
+{
+  //retrieve the sword room element
+  RoomElement element = getRoomElement(0);
+
+  //if it is already active, do nothing, otherwise
+  //initiate the sword being thrown
+  if (element.state == STATE_HIDDEN)
+  {
+	  switch (elf.facing)
+	  {
+		case FACING_DOWN:
+			element.state = STATE_MOVE_DOWN;
+			element.x = elf.x;
+			element.y = elf.y + 16;
+			break;
+			
+		case FACING_UP:
+			element.state = STATE_MOVE_UP;
+			element.x = elf.x;
+			element.y = elf.y - 8;			
+			break;
+
+		case FACING_LEFT:
+			element.state = STATE_MOVE_LEFT;
+			element.x = elf.x - 8;
+			element.y = elf.y;				
+			break;
+		
+		case FACING_RIGHT:
+			element.state = STATE_MOVE_RIGHT;
+			element.x = elf.x + 8;
+			element.y = elf.y;	
+			break;
+	  }  
+	  updateRoomElement(element);
+  }
+}
+
+void hitElf(char type){}
+  
+Elf getElf()
+{
+    return elf;
+}
+
 
 
 

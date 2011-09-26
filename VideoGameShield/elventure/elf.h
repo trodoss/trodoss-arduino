@@ -8,7 +8,18 @@
 
 #define STEP_LENGTH  4
 
+struct Elf
+{
+  unsigned char facing;
+  unsigned char step;
+  unsigned char x;
+  unsigned char y;
+};
+
 void showElf();
 void moveElf(unsigned char facing);
+void throwSword();
+void hitElf(char type);
+Elf getElf();
 
 #endif __ELF__

@@ -2,13 +2,13 @@
                                    /___/
                                    / /
    /-------------/              __/_/__
-     |  |-------/       //===//__ *__ //===//
+     |  |-------/       //===//__<*>_ //===//
      |  .----/                 / / /
      |  .---/                 / / /
-     |  |------/ 
+     |  |------/             / / /
    /----------/ L + V + E + N + T + U + R + E *=-
    An Adventure Game for the Arduino/Video Game Shield 
- 
+
    2011 - trodoss
    
    This program is free software; you can redistribute it and/or modify
@@ -74,6 +74,7 @@ void loop()
     if (player1.joy_down()) moveElf(FACING_DOWN);
     if (player1.joy_right()) moveElf(FACING_RIGHT);
     if (player1.joy_left()) moveElf(FACING_LEFT);
+    if (player1.button_z()) throwSword();
     
     next_action = TV.millis() + PAUSE_BETWEEN_ACTIONS; 
 	
