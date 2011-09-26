@@ -18,92 +18,96 @@ char changeMonsterDirection()
 
 RoomElement moveMonster(RoomElement element)
 {
-  //erase the old monster image (using blank map tile)
-  TV.bitmap(element.x, element.y, map_bitmap);
-  TV.bitmap(element.x, element.y+8, map_bitmap);
-  
-  element.step++;
-  if (element.step > 2) element.step = 1;
-   
-  switch (element.state)
+  //draw new monster bitmap
+  if (element.state > STATE_HIDDEN)
   {
-     case STATE_VISIBLE:
+    //erase the old monster image (using blank map tile)
+    TV.bitmap(element.x, element.y, map_bitmap);
+    TV.bitmap(element.x, element.y + 8, map_bitmap);
+  
+    element.step++;
+    if (element.step > 2) element.step = 1;
+   
+    switch (element.state)
+    {
+       case STATE_VISIBLE:
 	    element.state = changeMonsterDirection();
 		break;
 	 
-	 case STATE_MOVE_UP:
-	   if (element.y < 48)
-       {
-          if (checkMapRoomMove(element.x, element.y + 16) == 0)
-	      {
-	        element.y += STEP_LENGTH;
-	      } else {
-	        element.state = changeMonsterDirection();
-	      }
-	   } else {
-	     element.state = changeMonsterDirection();
-	   }
-	   break;
-		
-	case STATE_MOVE_DOWN:
+       case STATE_MOVE_UP:
+           element.state = STATE_VISIBLE;
            if (element.y > 4)
            {
              if (checkMapRoomMove(element.x, element.y - 4) == 0)
-	     {
-	       element.y -= STEP_LENGTH;
-	     } else {
-	       element.state = changeMonsterDirection();
-	     }
-           } else {
-   	    element.state = changeMonsterDirection();
-	   }
+             {
+                if (checkMapRoomMove(element.x + 4, element.y - 4) == 0)
+                {
+                  element.y -= STEP_LENGTH;
+                   element.state = STATE_MOVE_UP;
+                }
+             }
+           }
 	   break;
+	   
+	  case STATE_MOVE_DOWN:
+           element.state = STATE_VISIBLE;
+           if (element.y < 48)
+           {
+             if (checkMapRoomMove(element.x, element.y + 16) == 0)
+             {
+                if (checkMapRoomMove(element.x + 4, element.y + 16) == 0)
+                {
+                  element.y += STEP_LENGTH;
+                  element.state = STATE_MOVE_DOWN;
+                }
+             } 
+           }
+	   break;	   
 
-	case STATE_MOVE_LEFT:
+	  case STATE_MOVE_LEFT:
+           element.state = STATE_VISIBLE;
            if (element.x > 4)
            {
              if (checkMapRoomMove(element.x - 4, element.y) == 0)
-	     {
-                if (checkMapRoomMove(element.x - 4, element.y + 8) == 0) 
-		{
-		  element.x -= STEP_LENGTH;
-		} else {
-		    element.state = changeMonsterDirection();
-	        }
-	     } else {
-	     element.state = changeMonsterDirection();
-	    }
-	   } else {
-             element.state = changeMonsterDirection();
+             {
+                if (checkMapRoomMove(element.x - 4, element.y + 12) == 0)
+                {
+                    element.x -= STEP_LENGTH;
+                    element.state = STATE_MOVE_LEFT;
+                }
+             }
            }
 	   break;	   
 	   
-	case STATE_MOVE_RIGHT:
+	  case STATE_MOVE_RIGHT:
+           element.state = STATE_VISIBLE;
            if (element.x < 80)
            {
              if (checkMapRoomMove(element.x + 12, element.y) == 0)
-	     {
-                if (checkMapRoomMove(element.x + 12, element.y + 8) == 0)
-		{
-		  element.x -= STEP_LENGTH;
-   	        } else {
-		    element.state = changeMonsterDirection();
-		}
-  	     } else {
-   	       element.state = changeMonsterDirection();
-	     }
-	   } else {
-             element.state = changeMonsterDirection();
+             {
+                if (checkMapRoomMove(element.x + 12, element.y + 12) == 0)
+                {
+                  element.x += STEP_LENGTH;
+                  element.state = STATE_MOVE_RIGHT;
+                }
+             }
            }
 	   break;		      
-  }
+    }
 
-  
-  //draw new monster bitmap
-  TV.bitmap(element.x, element.y, monster_bitmap + ( element.type * SIZEOF_MONSTER_RECORD));
-  TV.bitmap(element.x, element.y+8, monster_bitmap + ((element.type + element.step) * SIZEOF_MONSTER_RECORD)); 
-  
+    TV.bitmap(element.x, element.y, monster_bitmap + ( element.type * SIZEOF_MONSTER_RECORD));
+    TV.bitmap(element.x, element.y+8, monster_bitmap + ((element.type + element.step) * SIZEOF_MONSTER_RECORD)); 
+  }
   return element;
+}
+
+RoomElement hitMonster(RoomElement element)
+{
+  //erase the old monster image (using blank map tile)
+  TV.bitmap(element.x, element.y, map_bitmap);
+  TV.bitmap(element.x, element.y + 8, map_bitmap);
+  
+  element.state = STATE_HIDDEN;
 }
 
 

@@ -7,8 +7,7 @@
 #define MONSTER_OCTO 0
 #define MONSTER_GOBO 1
 
-#define STAIR_DOWN   50
-#define STAIR_UP     51
+#define ITEM_SWORD 50
 
 #define STATE_HIDDEN     0
 #define STATE_VISIBLE    1
@@ -29,5 +28,8 @@ struct RoomElement
 
 void loadRoomElemments(char room);
 void handleRoomElements();
+void updateRoomElement (RoomElement element);
+RoomElement getRoomElement(char id);
+bool testRoomElement (RoomElement element, char testX, char testY, char ySize);
 
 #endif __ROOM__
