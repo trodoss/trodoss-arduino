@@ -97,6 +97,9 @@ RoomElement moveMonster(RoomElement element)
 
     TV.bitmap(element.x, element.y, monster_bitmap + ( element.type * SIZEOF_MONSTER_RECORD));
     TV.bitmap(element.x, element.y+8, monster_bitmap + ((element.type + element.step) * SIZEOF_MONSTER_RECORD)); 
+	
+	//decrement counter, if active
+	if (element.counter > 0) element.counter--;
   }
   return element;
 }
@@ -108,6 +111,11 @@ RoomElement hitMonster(RoomElement element)
   TV.bitmap(element.x, element.y + 8, map_bitmap);
   
   element.state = STATE_HIDDEN;
+  
+  //add heart element
+  addRoomElement(ITEM_HEART, element.x, element.y, STATE_VISIBLE, COUNTER_START);
+  
+  return element;
 }
 
 

@@ -1,5 +1,6 @@
 #ifndef __ELF__
 #define __ELF__
+#include "room.h"
 
 #define FACING_DOWN  0
 #define FACING_UP    3
@@ -14,12 +15,14 @@ struct Elf
   unsigned char step;
   unsigned char x;
   unsigned char y;
+  unsigned char hearts;
+  unsigned char crystals;
 };
 
 void showElf();
 void moveElf(unsigned char facing);
 void throwSword();
-void hitElf(char type);
+RoomElement hitElf(RoomElement element);
 Elf getElf();
 
 #endif __ELF__

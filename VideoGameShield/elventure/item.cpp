@@ -73,7 +73,10 @@ RoomElement moveItem(RoomElement element)
     }
 
     //draw new item bitmap
-    TV.bitmap(element.x, element.y, item_bitmap + ( ((element.type - 51) + (element.step)) * SIZEOF_ITEM_RECORD));
+    if (element.state > STATE_HIDDEN) TV.bitmap(element.x, element.y, item_bitmap + ( ((element.type - 51) + (element.step)) * SIZEOF_ITEM_RECORD));
+	
+	//decrement counter, if active
+	if (element.counter > 0) element.counter--;	
   }
   return element;
 }
@@ -84,6 +87,7 @@ RoomElement hitItem(RoomElement element)
   TV.bitmap(element.x, element.y, map_bitmap);
   
   element.state = STATE_HIDDEN;
+  return element;
 }
 
 
