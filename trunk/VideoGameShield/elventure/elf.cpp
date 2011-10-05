@@ -6,6 +6,7 @@
 #include "map.h"
 #include "room.h"
 #include "item.h"
+#include "display.h"
 extern TVout TV;
 
 #define FACING_DOWN  0
@@ -17,7 +18,7 @@ extern TVout TV;
 
 #define SIZEOF_ELF_RECORD 10
 
-Elf elf = {FACING_DOWN, 1, 36, 24};
+Elf elf = {FACING_DOWN, 1, 36, 24, 3, 0};
 
 void showElf()
 {
@@ -28,7 +29,7 @@ void moveElf(unsigned char facing)
 {
   //erase the old elf image (using blank map tile)
   TV.bitmap(elf.x, elf.y, map_bitmap);
-  TV.bitmap(elf.x, elf.y+8, map_bitmap);
+  TV.bitmap(elf.x, elf.y + 8, map_bitmap);
   
   //if it is a new facing, then reset the step
   if (facing != elf.facing)
@@ -140,7 +141,59 @@ void throwSword()
   }
 }
 
-void hitElf(char type){}
+RoomElement hitElf(RoomElement element)
+{
+  //hit by a monster
+  if (element.type < 50)
+  {
+    //check the counter, so hearts are not 
+	//removed unless the monster has not been 'hit'
+	//already
+    if (element.counter == 0)
+	{
+      element.counter = COUNTER_START;
+      elf.hearts--;
+      if (elf.hearts < 1)
+      {
+        //game over
+      }
+	}
+	
+	//when the elf and a monster 'bump,' move the monster
+	//in the opposite direction
+	switch (element.state)
+	{
+	  case STATE_MOVE_UP:
+	     element.state = STATE_MOVE_DOWN;
+		 break;
+		 
+	  case STATE_MOVE_DOWN:
+	     element.state = STATE_MOVE_UP;
+		 break;
+
+	  case STATE_MOVE_LEFT:
+	     element.state = STATE_MOVE_RIGHT;
+		 break;		 
+
+	  case STATE_MOVE_RIGHT:
+	     element.state = STATE_MOVE_LEFT;
+		 break;	 
+	}
+  } else {
+	//if it is a heart, add one to the hearts
+	if (element.type == ITEM_HEART)
+	{
+	  if (elf.hearts < MAX_HEARTS) elf.hearts++;
+	  //handle the rest of the item hit
+	  element = hitItem(element);	  
+	} 
+  }
+  
+  //update the display
+  updateDisplay(elf);
+  
+  return element;
+}
   
 Elf getElf()
 {

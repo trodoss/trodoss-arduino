@@ -37,6 +37,7 @@
 #include "room.h"
 #include "elf.h"
 #include "sound.h"
+#include "display.h"
 
 #define SCREENWIDTH     128
 #define SCREENHEIGHT    96
@@ -58,6 +59,8 @@ void setup()
   drawMapRoom();
   
   showElf();
+  
+  updateDisplay(getElf());
   
   play_song(0);
 }

@@ -10,7 +10,7 @@
 RoomElement roomElements[MAX_ELEMENT_RECORDS];
 char element_count = 0;
 
-void addRoomElement(char type, char x, char y, char state)
+void addRoomElement(char type, char x, char y, char state, char counter)
 {
       roomElements[element_count].id = element_count;
       roomElements[element_count].type = type;
@@ -18,6 +18,7 @@ void addRoomElement(char type, char x, char y, char state)
       roomElements[element_count].y = y;
       roomElements[element_count].step = 1;
       roomElements[element_count].state = state;
+	  roomElements[element_count].counter = counter;
       element_count++;
 }
 
@@ -29,7 +30,7 @@ void loadRoomElemments(char room)
   element_count = 0;
   
   //add in the item (sword) room element automatically
-  addRoomElement(ITEM_SWORD, 0, 0, STATE_HIDDEN);
+  addRoomElement(ITEM_SWORD, 0, 0, STATE_HIDDEN, 0);
   
   int index_ptr = 0;
   
@@ -43,7 +44,7 @@ void loadRoomElemments(char room)
 	index_ptr *= 4;
 	while (element_count < MAX_ELEMENT_RECORDS)
     {
-      addRoomElement(pgm_read_byte_near(room_element_data + index_ptr), pgm_read_byte_near(room_element_data + (index_ptr+1)), pgm_read_byte_near(room_element_data + (index_ptr+2)), STATE_VISIBLE);
+      addRoomElement(pgm_read_byte_near(room_element_data + index_ptr), pgm_read_byte_near(room_element_data + (index_ptr+1)), pgm_read_byte_near(room_element_data + (index_ptr+2)), STATE_VISIBLE, 0);
 	
       //look to see if we have reached the end of data for the room
       if (pgm_read_byte_near(room_element_data + (index_ptr+3)) == 255) break;
@@ -66,7 +67,7 @@ void handleRoomElements()
     if (roomElements[i].state > STATE_HIDDEN)
 	{	   	   
        //test room elements for a collision with the elf
-	   if (testRoomElement(roomElements[i], elf.x, elf.y, 16)) hitElf(roomElements[i].type);
+	   if (testRoomElement(roomElements[i], elf.x, elf.y, 16)) roomElements[i] = hitElf(roomElements[i]);
 	  
 	   //determine the type of element and handle the behaviors
 	   if (roomElements[i].type < 50)
@@ -77,7 +78,7 @@ void handleRoomElements()
 		   if (testRoomElement(roomElements[i], roomElements[0].x, roomElements[0].y, 8))
 		   { 
 		     roomElements[i] = hitMonster(roomElements[i]);
-			 roomElements[0] = hitItem(roomElements[i]);
+		     roomElements[0] = hitItem(roomElements[0]);
 		   }
 		 }
 		 
@@ -86,6 +87,9 @@ void handleRoomElements()
 
 	   }  else {
          roomElements[i] = moveItem(roomElements[i]);
+		 
+		 //hide the heart if the timer has run out 
+		 if ((roomElements[i].type == ITEM_HEART) && (roomElements[i].counter == 0)) roomElements[i] = hitItem(roomElements[i]);
 	   }
 	}
   }
@@ -95,14 +99,14 @@ void handleRoomElements()
 bool testRoomElement (RoomElement element, char testX, char testY, char ySize)
 {
   bool  is_hit = false;
-  if ((element.x >= testX) && (element.x <= testX + 8))
+  if (((element.x >= testX) && (element.x <= testX + 8)) || ((element.x + 8 >= testX) && (element.x + 8 <= testX + 8)))
   {
     //determine the type of element and handle the behaviors
 	if (element.type < 50)
 	{		 
-       if ((element.y >= testY) && (element.y <= testY + ySize)) is_hit = true;
+       if (((element.y >= testY) && (element.y <= testY + ySize )) || ((element.y + ySize >= testY) && (element.y + ySize <= testY + ySize ))) is_hit = true;
     } else {
-       if ((element.y >= testY) && (element.y <= testY + 8)) is_hit = true;
+	   if (((element.y >= testY) && (element.y <= testY + 8 )) || ((element.y + 16 >= testY) && (element.y + 16 <= testY + 8 ))) is_hit = true;
 	}
   }
 
