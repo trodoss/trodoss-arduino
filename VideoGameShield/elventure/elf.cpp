@@ -7,18 +7,12 @@
 #include "room.h"
 #include "item.h"
 #include "display.h"
+#include "sound.h"
 extern TVout TV;
-
-#define FACING_DOWN  0
-#define FACING_UP    3
-#define FACING_LEFT  6
-#define FACING_RIGHT 9
-
-#define STEP_LENGTH  4
 
 #define SIZEOF_ELF_RECORD 10
 
-Elf elf = {FACING_DOWN, 1, 36, 24, 3, 0};
+Elf elf = {FACING_DOWN, 1, 36, 24, 3, {0,0,0,0}};
 
 void showElf()
 {
@@ -180,13 +174,43 @@ RoomElement hitElf(RoomElement element)
 		 break;	 
 	}
   } else {
-	//if it is a heart, add one to the hearts
-	if (element.type == ITEM_HEART)
+	switch (element.type)
 	{
-	  if (elf.hearts < MAX_HEARTS) elf.hearts++;
-	  //handle the rest of the item hit
-	  element = hitItem(element);	  
-	} 
+       case ITEM_HEART:
+         if (elf.hearts < MAX_HEARTS) elf.hearts++;
+         //handle the rest of the item hit
+         element = hitItem(element);	  
+		 break;
+		 
+       case ITEM_CRYSTAL:
+	   case ITEM_ORB:
+	   case ITEM_ARMOR:
+	   case ITEM_STAFF:
+	      addElfItem(element.type);
+          //handle the rest of the item hit
+          element = hitItem(element);	  		  
+	      break;
+		  
+	   case ITEM_PORTAL:
+             //handle the rest of the item hit
+              element = hitItem(element);
+              
+	      if (getMapCurrentRoom() > 63)
+		  {
+		    //go to the bottom half of the map (underworld)
+		    setMapRoom(0);
+		    play_song(0);
+		  } else {
+		    //back to top half of the map (overworld)
+		    setMapRoom(64);
+	            play_song(1);
+		  }
+		  elf.x = 36;
+		  elf.y = 24;
+		  elf.facing = FACING_DOWN;
+                  showElf();
+	      break;
+	} 	
   }
   
   //update the display
@@ -198,6 +222,37 @@ RoomElement hitElf(RoomElement element)
 Elf getElf()
 {
     return elf;
+}
+
+//adds the item in the elf's inventory
+void addElfItem(char type)
+{
+  char count = 0;
+  for (char i=0; i< MAX_ITEMS; i++)
+  {
+    if (elf.items[i] == 0)
+	{
+	  elf.items[i] = type;
+	  break;
+	} else {
+	  count++;
+	}
+  }
+  
+  if (count == MAX_ITEMS)
+  {
+    //won game
+  }
+}
+
+//check the elf's inventory for a specific item
+bool elfHasItem(char type)
+{
+  for (char i=0; i< MAX_ITEMS; i++)
+  {
+    if ((elf.items[i] > 50) && (elf.items[i] == type)) return true;
+  } 
+  return false;  
 }
 
 

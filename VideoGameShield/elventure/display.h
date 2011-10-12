@@ -3,7 +3,6 @@
 #include "elf.h"
 
 #define MAX_HEARTS 4
-#define MAX_CRYSTALS 4
 
 void updateDisplay(Elf elf);
 

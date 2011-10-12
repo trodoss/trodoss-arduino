@@ -44,7 +44,8 @@ void loadRoomElemments(char room)
 	index_ptr *= 4;
 	while (element_count < MAX_ELEMENT_RECORDS)
     {
-      addRoomElement(pgm_read_byte_near(room_element_data + index_ptr), pgm_read_byte_near(room_element_data + (index_ptr+1)), pgm_read_byte_near(room_element_data + (index_ptr+2)), STATE_VISIBLE, 0);
+	  //only add the item to the room if the elf does not already have this in inventory
+	  if (elfHasItem(pgm_read_byte_near(room_element_data + index_ptr)) == false) addRoomElement(pgm_read_byte_near(room_element_data + index_ptr), pgm_read_byte_near(room_element_data + (index_ptr+1)), pgm_read_byte_near(room_element_data + (index_ptr+2)), STATE_VISIBLE, 0);
 	
       //look to see if we have reached the end of data for the room
       if (pgm_read_byte_near(room_element_data + (index_ptr+3)) == 255) break;
