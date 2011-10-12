@@ -1,0 +1,1 @@
+zelda-end:d=4,o=5,b=190:g6,g,c6,e6,d#6,g,b6,b,a6,c6,e6,a6,g6,c6,d6,e6,a6,c6,f6,a6,g#6,c6,d6,f6,e6,g,c6,e6,d6,a,b,d6,g6,g,c6,e6,d#6,g,b6,b,a6,c6,e6,a6,g6,c6,d6,e6,a6,c6,f6,a6,g#6,c6,d6,f6,e6,g,c6,e6,d6,a,b,d6

@@ -1,5 +1,6 @@
 #include <TVout.h>
 #include "sound_data.h"
+#include "sound.h"
 
 #define SONG_PLAYING 0
 #define SONG_ENDED 1
@@ -8,14 +9,16 @@ extern TVout TV;
 
 int song_note_len;       //current song's not length
 int current_note;        //current note
+char current_song;       //current song
 int song_end_pos;        //indicates the position of the last note of the song
 char music_state;        //indicates the current music state
 
 //handles the music/sfx playing for the sketch
 void update_sound()
 {
-  if (music_state == SONG_PLAYING)
+  switch (music_state)
   {
+  case SONG_PLAYING:
     static long next_note_start_time = 0;
     if (TV.millis() >= next_note_start_time)
     {
@@ -35,6 +38,12 @@ void update_sound()
   	
       current_note++;  
     }
+    break;
+	
+   case SONG_ENDED:
+     //start the same song over automatically
+     play_song(current_song);
+	 break;
   }
 }
 
@@ -52,5 +61,7 @@ void play_song(char song)
   
   //set the state to 'playing'
   music_state = SONG_PLAYING;
+  
+  //set the current song value to the passed parameter
+  current_song = song;
 }
-

@@ -4,12 +4,13 @@
 #define SIZEOF_ELEMENT_RECORD 4
 #define MAX_ELEMENT_RECORDS 4
 
-#define MONSTER_OCTO 0
-#define MONSTER_GOBO 1
-
 #define ITEM_SWORD   50
 #define ITEM_HEART   52
 #define ITEM_CRYSTAL 54
+#define ITEM_PORTAL  56
+#define ITEM_ORB     58
+#define ITEM_ARMOR   60
+#define ITEM_STAFF   62
 
 #define STATE_HIDDEN     0
 #define STATE_VISIBLE    1

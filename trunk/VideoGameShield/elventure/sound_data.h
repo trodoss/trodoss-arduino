@@ -112,7 +112,7 @@ PROGMEM prog_uint16_t song_start[] = { 0, 97 };
 
 PROGMEM prog_uint16_t tempo[] = { 125, 80 };
 
-PROGMEM prog_uint16_t melody[] =
+PROGMEM prog_uint16_t melody [] =
 {
 NOTE_AS5, NOTE_F5, NOTE_AS5, NOTE_AS5, NOTE_C6, NOTE_D6, NOTE_DS6, 
 NOTE_F6, NOTE_REST, NOTE_F6, NOTE_F6, NOTE_FS6, NOTE_GS6, NOTE_AS6, 

@@ -81,3 +81,13 @@ void scrollMap(char direction)
   drawMapRoom();
 }
 
+//return the current room value
+char getMapCurrentRoom() { return map_curr_room; }
+
+//set the map to a specific room (portals)
+void setMapRoom(char room)
+{
+  map_curr_room = room;
+  drawMapRoom();
+}
+
