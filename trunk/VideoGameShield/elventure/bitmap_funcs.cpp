@@ -1,3 +1,5 @@
+//bitmap_funcs.cpp from Parachute by pocketscience
+//for full source of that sketch, see: http://nootropicdesign.com/hackvision/downloads/games/Parachute.zip
 #include <avr/pgmspace.h>
 #include <TVout.h>
 #include "bitmap_funcs.h"
