@@ -8,7 +8,7 @@
      |  |------/  /________/ / / /
    /----------/ L + V + E + N + T + U + R + E *=-
    An Adventure Game for the Arduino/Hackvision Video Game Platform
-   v2.0
+   v2.1
 
    2011 - trodoss
    
@@ -22,9 +22,9 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    
-   You should have received a copy of the GNU General Public License along
-   with this program; if not, write to the Free Software Foundation, Inc.,
-   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.   
+   bitmap_funcs.cpp used from "Parachute" sketch by pocketscience.
+   For a full copy of that sketch, see:
+   http://nootropicdesign.com/hackvision/downloads/games/Parachute.zip
    
  */
  
