@@ -1,39 +1,84 @@
 #include <avr/pgmspace.h>
 #include <TVout.h>
 #include "poofy.h"
+#include "room.h"
 #include "level.h"
 #include "level_bitmap.h"
-#include "level_data.h"
+#include "map_data.h"
+#include "bitmap_funcs.h"
 
 #define SIZEOF_BACKDROP_RECORD 10
 
 extern TVout TV;
-char level_current = 0;
+
+//store the current room
+char level_current_room = 0;
+char level_state = LEVEL_PLAYING;
+char level_scroll_x = 0;
 
 void level_update()
 {
-   poofy_draw();
+   //handle normal game play events
+   if (level_state == LEVEL_PLAYING)
+   {
+     room_handle_elements();
+     poofy_draw();
+   } else {
+     //handle when we are scrolling the screen
+     level_scroll();
+   }
 }
 
 void level_advance()
 {
-  level_current++;
-  level_draw();
+  level_current_room++;
+  level_state = LEVEL_SCROLLING;
+  level_scroll_x = 0; 
 }
 
+//draws the first room on the screen
 void level_draw()
 {
    TV.clear_screen();
-   
+   level_state = LEVEL_PLAYING;
+      
    //read the level data and draw the level on the screen
-   for (char y=0; y < LEVEL_HEIGHT; y++)
+   for (char y=0; y < 10; y++)
    {
-      for (char x=0; x < LEVEL_WIDTH; x++)
+      for (char x=0; x < 16; x++)
       {
-          char current_block = level_get_block(x, y);
+          char current_block = level_get_block(x, y, -1);
           if (current_block > 0) TV.bitmap(x * 8, y * 8, level_bitmap + ((current_block-1) * SIZEOF_BACKDROP_RECORD));
       }
    }
+   
+   //load the room elements
+   room_load_elements(level_current_room);   
+}
+
+//handles scrolling the screen left
+void level_scroll()
+{
+  if (level_scroll_x < 16)
+  {
+     //shift the display left by 8 pixels
+     shift_left(8);
+  
+     //read the level data and draw the level on the screen
+     for (char y=0; y < 10; y++)
+     {
+         char current_block = level_get_block(level_scroll_x, y, -1);
+         if (current_block > 0) TV.bitmap(120, y * 8, level_bitmap + ((current_block-1) * SIZEOF_BACKDROP_RECORD));
+   
+     }  
+     level_scroll_x++; 
+  } else {
+     //we are done scrolling, so return to playing
+     level_state = LEVEL_PLAYING;
+     
+     //load the room elements
+     room_load_elements(level_current_room);
+  }
 }
 
 char level_check_move_h(char x, char y, char &tile_y)
@@ -45,7 +90,7 @@ char level_check_move_h(char x, char y, char &tile_y)
  
     //loop while the start point of the test tile is inside the bounding box
     while(tile_x_pixels <= testend){
-       if(level_get_block(tile_x, tile_y) > 0)	//is a solid tile is found at tile_x, tile_y?
+       if(level_get_block(tile_x, tile_y, -1) > 0)	//is a solid tile is found at tile_x, tile_y?
 			return 1;	
 			
        tile_x++;		//increase tile x map coordinate
@@ -64,7 +109,7 @@ char level_check_move_v(char x, char y, char &tile_x)
  
     //loop while the start point of the test tile is inside the bounding box
     while(tile_y_pixels <= testend){
-       if(level_get_block(tile_x, tile_y) > 0)	//is a solid tile is found at tile_x, tile_y?
+       if(level_get_block(tile_x, tile_y, -1) > 0)	//is a solid tile is found at tile_x, tile_y?
 			return 1;	
 			
        tile_y++;		//increase tile x map coordinate
@@ -74,8 +119,20 @@ char level_check_move_v(char x, char y, char &tile_x)
 	return 0;
 }
 
-//return the block at a given 'level' x,y coordinate in the current level
-char level_get_block(char level_x, char level_y)
+//return the block at a given 'level' x,y coordinate in the current room
+char level_get_block(char level_x, char level_y, char room)
 {
-   return pgm_read_byte_near (level_data + (level_current * LEVEL_SIZE) + level_x + (level_y * LEVEL_WIDTH));
+  char index_ptr = 0;
+  //if no room parameter is passed, assume the current
+  //room
+  if (room == -1) room = level_current_room; 
+  if (level_x > 15) level_x = 15;
+  if (level_y > 9) level_y = 9;
+  
+  //determine the index start for room data 
+  index_ptr = pgm_read_byte_near(map_room_data + (room * 16) + level_x);
+  
+  //determine which pattern is being referenced
+  //and return this value
+  return pgm_read_byte_near (map_pattern_data + (index_ptr * 10) + level_y);
 }

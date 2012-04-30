@@ -21,6 +21,7 @@
 #include <nunchuck.h>
 #include <TVout.h>
 #include <font4x6.h>
+#include <pollserial.h>
 
 #define SCREENWIDTH     128
 #define SCREENHEIGHT    96
@@ -41,14 +42,14 @@
 TVout TV;
 Nunchuck player1;
 char game_state;
-//pollserial pserial;
+pollserial pserial;
 
 void setup()
 {
   TV.begin(_NTSC, SCREENWIDTH, SCREENHEIGHT);
   TV.select_font(font4x6);
   //debug
-  //TV.set_hbi_hook(pserial.begin(9600));  
+  TV.set_hbi_hook(pserial.begin(9600));  
   
   randomSeed(analogRead(0));
   
@@ -146,6 +147,8 @@ void start_title()
 
 void start_game_over()
 {
+  //placeholder for now
+  start_title();
 }
 
 void start_game_won()

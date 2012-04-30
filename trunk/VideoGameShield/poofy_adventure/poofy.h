@@ -1,5 +1,6 @@
 #ifndef __POOFY__
 #define __POOFY__
+#include "room.h"
 
 //state constants
 #define POOFY_STANDING 0
@@ -20,7 +21,7 @@
 #define POOFY_FACE_LEFT 4
 #define POOFY_MOVE_LEFT 5
 #define POOFY_JUMP_LEFT 7
-#define POOFY_DYING 8
+#define POOFY_ANIM_DYING 8
 
 //facing constants
 #define FACING_LEFT 1
@@ -30,5 +31,8 @@ void poofy_move(char new_facing);
 void poofy_jump();
 void poofy_draw();
 char poofy_getState();
+char poofy_get_x();
+char poofy_get_y();
+RoomElement poofy_hit(RoomElement element);
 
 #endif __POOFY__

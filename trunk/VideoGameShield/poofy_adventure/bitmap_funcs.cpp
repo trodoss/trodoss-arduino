@@ -99,3 +99,34 @@ void eraseBitmapRect( uint8_t x, uint8_t y, const unsigned char * bmp )
   TV.draw_rect( x, y, w, h, BLACK, BLACK ); 
 }
 
+//modified shift that preserves the bottom 16 pixels of the screen
+void shift_left(uint8_t distance)
+{
+	uint8_t * src;
+	uint8_t * dst;
+	uint8_t * end;
+	uint8_t shift;
+	uint8_t tmp;
+
+	shift = distance & 7;
+			
+	for (uint8_t line = 0; line < 80; line++) {
+		dst = display.screen + display.hres*line;
+		src = dst + distance/8;
+		end = dst + display.hres-2;
+		while (src <= end) {
+			tmp = 0;
+			tmp = *src << shift;
+			*src = 0;
+			src++;
+			tmp |= *src >> (8 - shift);
+			*dst = tmp;
+			dst++;
+		}
+		tmp = 0;
+		tmp = *src << shift;
+		*src = 0;
+		*dst = tmp;
+	}
+} // end of shift
+
