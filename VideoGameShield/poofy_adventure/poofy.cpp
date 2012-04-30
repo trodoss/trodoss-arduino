@@ -3,11 +3,18 @@
 #include "poofy.h"
 #include "poofy_bitmap.h"
 #include "bitmap_funcs.h"
+#include "fruit.h"
+#include "snake.h"
 #include "level.h"
+#include "room.h"
+#include "display.h"
+#include <pollserial.h>
 
 extern TVout TV;
+extern pollserial pserial;
 
-#define MAX_VELOCITY 4
+#define MAX_WALK_VELOCITY 4
+#define MAX_JUMP_VELOCITY 6
 #define STEP_LENGTH 2
 #define SIZEOF_POOFY_RECORD 10
 
@@ -25,7 +32,7 @@ void poofy_draw()
      char tile_adjust;
      
      //handle delay for changing x velocity, y velocity, or when jumping (special case)
-     if ((count >= MAX_VELOCITY - x_velocity) || (y_velocity > 0) || (state == POOFY_JUMPING))
+     if ((count >= MAX_WALK_VELOCITY - x_velocity) || (y_velocity > 0) || (state == POOFY_JUMPING))
      {
          //erasebitmap(x, y, poofy_bitmap);
          eraseBitmapRect(x, y, poofy_bitmap);
@@ -43,9 +50,15 @@ void poofy_draw()
                    x = (tile_adjust * 8) - 9;
                    x_velocity = 0;
                 //otherwise, keep moving right 
-                } else {		
-		   x += x_velocity;
-                   x_velocity--;
+                } else {
+                   if (x+x_velocity > 111)
+                   {
+                     level_advance();
+                     x = 0;
+                   } else {				   
+                      x += x_velocity;
+                      x_velocity--;
+		   }
                 }		
 	   } else {
                if (level_check_move_v(x - x_velocity, y, tile_adjust) > 0)
@@ -53,7 +66,7 @@ void poofy_draw()
                    x = ((tile_adjust + 1) * 8) + 1;
                    x_velocity = 0;
                } else {
-		   x -= x_velocity;
+		  if (x - x_velocity > 0) x -= x_velocity;
                    x_velocity--;
                }	    
 	    }
@@ -65,6 +78,25 @@ void poofy_draw()
 	    //moving up
 	    if (state == POOFY_JUMPING)
 	    {
+                   char buf[4];
+                   itoa(x, buf, 10);
+                   pserial.print(buf);
+                   
+                   pserial.print(" ");
+                   
+                   itoa(y, buf, 10);
+		   pserial.print(buf);
+
+		   pserial.print(" ");
+
+                   itoa(x_velocity, buf, 10);
+		   pserial.print(buf);
+
+		   pserial.print(" ");
+
+                   itoa(y_velocity, buf, 10);
+		   pserial.println(buf);
+		   
 		   if (level_check_move_h(x, y-y_velocity, tile_adjust) > 0)
 		   {
 		      y = ((tile_adjust + 1) * 8) + 1;
@@ -72,7 +104,7 @@ void poofy_draw()
 	              //poofy starting to freefall
 		     state = POOFY_FALLING;
 		   } else {
-		      y -= y_velocity;
+                      if (y-y_velocity > 0) y -= y_velocity;
 		      y_velocity--;
 		   }
 	    } else {
@@ -83,8 +115,13 @@ void poofy_draw()
 		      //poofy standing on ground
 		      state = POOFY_STANDING;
 		   } else {
-		      y += y_velocity;
-			  if (y_velocity <= MAX_VELOCITY) y_velocity++;
+              //to do: if ((y+y_velocity) > 80) then state = POOFY_DYING;
+              if ((y+y_velocity) > 80) {
+			     state = POOFY_DYING;
+			  } else {
+			      y += y_velocity;
+			     if (y_velocity <= MAX_JUMP_VELOCITY) y_velocity++;
+              }
 		   }
 	   } 
 	 } else {
@@ -112,6 +149,16 @@ void poofy_draw()
             }
          }
 	 
+	 if (state == POOFY_DYING)
+	 {
+	    frame++;
+		if (frame == 9) {
+	       state = POOFY_DEAD;
+	    } else {
+           frame = POOFY_ANIM_DYING;
+	    }
+     }
+	 
         overlaybitmap(x, y, poofy_bitmap + ( frame * SIZEOF_POOFY_RECORD));
      } else {
        count++;
@@ -125,7 +172,7 @@ void poofy_move(char new_facing)
      //if we are still moving in the same direction, accelerate
      if (new_facing == facing)
      {
-       if (x_velocity <= MAX_VELOCITY) x_velocity++;
+       if (x_velocity <= MAX_WALK_VELOCITY) x_velocity++;
      } else {
        facing = new_facing;
        if (facing == FACING_LEFT)
@@ -146,9 +193,34 @@ void poofy_jump()
   //if (y_velocity == 0)
   if (state < POOFY_JUMPING)
   {
-    y_velocity = MAX_VELOCITY;
+    y_velocity = MAX_JUMP_VELOCITY;
     state = POOFY_JUMPING;
   }  
+}
+
+RoomElement poofy_hit(RoomElement element)
+{
+     if (element.type > 49)
+     {
+        //hit fruit
+	    element = fruit_hit(element);
+	    //to do: add to score	 
+	    display_update(100);
+      } else {
+         element = snake_hit(element);
+         state = POOFY_DYING;
+      }  
+  return element;
+}
+
+char poofy_get_x()
+{
+  return x;
+}
+
+char poofy_get_y()
+{
+  return y;
 }
 
 char poofy_getState()
