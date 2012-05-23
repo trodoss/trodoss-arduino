@@ -4,7 +4,7 @@
   /     ____   /__/    /__/      /\ \|   /  /
  /_____/\   |_______/\______/\__/   |__/  /
  \     \    \       \ \     \ \  \  \  \ / 
-   An Adventure Game for the Arduino/Video Game Shield 
+   An Adventure Game for the Arduino/Hackvision
 
    2012 - trodoss
    
@@ -21,8 +21,7 @@
  */
  
 #include <stdlib.h> 
-#include <i2cmaster.h>
-#include <nunchuck.h>
+#include <Controllers.h>
 #include <TVout.h>
 #include <font4x6.h>
 
@@ -44,7 +43,6 @@
 #include "display.h"
 
 TVout TV;
-Nunchuck player1;
 char game_state;
 
 void setup()
@@ -54,7 +52,6 @@ void setup()
   
   randomSeed(analogRead(0));
   
-  player1.begin(0);
   start_title();
 }
 
@@ -68,9 +65,8 @@ void loop()
     case GAME_WON:
        if (TV.millis() >= next_action)
        {
-         player1.update();
-		 //wait for a button to be pressed to continue
-         if ((player1.button_c()) || (player1.button_z()))
+	 //wait for a button to be pressed to continue
+         if (Controller.firePressed())
          {	   
 		   game_state = GAME_PLAYING;
 		   start_game();
@@ -84,12 +80,9 @@ void loop()
 	case GAME_PLAYING:
        if (TV.millis() >= next_action)
        {      
-         player1.update();
-       
-         if (player1.joy_right()) poofy_move(FACING_RIGHT);
-         if (player1.joy_left()) poofy_move(FACING_LEFT);
-         if (player1.button_z()) poofy_jump();
-         if (player1.button_c()) game_state = GAME_PAUSED;
+         if (Controller.rightPressed()) poofy_move(FACING_RIGHT);
+         if (Controller.leftPressed()) poofy_move(FACING_LEFT);
+         if (Controller.firePressed()) poofy_jump();
     
          next_action = TV.millis() + PAUSE_BETWEEN_ACTIONS; 
 	
@@ -109,16 +102,6 @@ void loop()
        sound_update();
        break;
        
-   case GAME_PAUSED:
-       if (TV.millis() >= next_action)
-       {
-         player1.update();
-		 
-         if (player1.button_c()) game_state = GAME_PLAYING;
-         
-         next_action = TV.millis() + PAUSE_BETWEEN_ACTIONS; 
-       }
-       break;
   }
 }
 
