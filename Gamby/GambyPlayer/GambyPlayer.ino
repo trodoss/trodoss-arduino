@@ -2,7 +2,7 @@
    A ringtone (music) player for the Gamby
    
    2013 - trodoss
-   http://www.propellerpowered.com
+   http://code.google.com/p/trodoss-arduino/
    
    The music used in this project was converted from RTTTL (Ring Tone Text Transfer Language)
    that was available at http://merwin.bespin.org/db/rts/ (MeRWiN's Ringtone Search)
