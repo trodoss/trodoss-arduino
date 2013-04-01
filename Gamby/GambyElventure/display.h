@@ -4,6 +4,6 @@
 
 #define MAX_HEARTS 4
 
-void updateDisplay(Elf elf);
+void drawDisplay(Elf elf);
 
 #endif __DISPLAY__

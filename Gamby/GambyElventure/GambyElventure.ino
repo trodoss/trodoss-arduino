@@ -41,6 +41,7 @@
 
 #define GAME_TITLE   0
 #define GAME_PLAYING 1
+#define GAME_PAUSED  2
 #define GAME_WON     3
 #define GAME_OVER    4
 
@@ -106,9 +107,16 @@ void loop()
          if (lastInputs == DPAD_RIGHT) moveElf(FACING_RIGHT);
          if (lastInputs == DPAD_LEFT) moveElf(FACING_LEFT);
          if (lastInputs == BUTTON_2) throwSword();
+         if (lastInputs == BUTTON_1) 
+         {
+           drawDisplay(getElf());
+           game_state = GAME_PAUSED;
+         }
+         
     
          next_action = millis() + PAUSE_BETWEEN_ACTIONS; 
-	
+	if (game_state != GAME_PAUSED)
+        {
          handleRoomElements();
 		 
 		 //check the elf's state
@@ -121,10 +129,31 @@ void loop()
 		     start_game_won();
 		   }
 		 }
+         }
        }
        gamby.update();
        update_sound();
        break;
+       
+       case GAME_PAUSED:
+       if (millis() >= next_action)
+       {
+         gamby.readInputs();
+         lastInputs = gamby.inputs;
+		 
+         if (lastInputs == BUTTON_1)
+         {
+           //redraw the current screen and continue
+           gamby.clearScreen();
+           drawMapElements();
+           showElf();
+           gamby.update();
+           game_state = GAME_PLAYING;
+         }
+         
+         next_action = millis() + PAUSE_BETWEEN_ACTIONS; 
+       }
+       break;       
   }
 }
 
@@ -137,7 +166,6 @@ void start_game()
   //start the game
   setMapRoom(0);
   showElf();
-  updateDisplay(getElf());
   play_song(0);
   game_state = GAME_PLAYING;  
 }
