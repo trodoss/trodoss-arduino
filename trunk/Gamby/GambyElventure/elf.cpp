@@ -227,9 +227,6 @@ RoomElement hitElf(RoomElement element)
 	} 	
   }
   
-  //update the display
-  updateDisplay(elf);
-  
   return element;
 }
   

@@ -43,7 +43,13 @@ char getMapBlock(char map_x, char map_y, char room)
 
 void drawMapRoom()
 { 
-  for (char y=0;y<8; y++)
+  drawMapElements();
+  loadRoomElemments(map_curr_room);
+}
+
+void drawMapElements()
+{
+    for (char y=0;y<8; y++)
   {
 	  for (char x=0; x<12;x++)
 	  {
@@ -52,8 +58,6 @@ void drawMapRoom()
 		 gamby.drawSprite(x*8, y*8, map_bitmap, curr_block);
 	  }
   }
-  
-  loadRoomElemments(map_curr_room);
 }
 
 //initiates the scrolling of the map in a particular direction

@@ -12,5 +12,6 @@ void drawMapRoom();
 void scrollMap(char direction);
 char getMapCurrentRoom();
 void setMapRoom(char room);
+void drawMapElements();
 
 #endif __MAP__
